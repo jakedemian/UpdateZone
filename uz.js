@@ -43,10 +43,10 @@ loadJquery("https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js", f
 		UZ_ATTRIBUTE_MODE_VALUE_PERIODIC :			"periodic",
 		UZ_ATTRIBUTE_MODE_VALUE_MANUAL : 			"manual",
 
-		UZ_METADATA_VERSION : 						"v0.1",
+		UZ_METADATA_VERSION : 						"v0.2",
 
 		// {HOUR (MILITARY)}{MINUTES}.{MONTH}{DAY}{YEAR}
-		UZ_METADATA_BUILD : 						"1439.10142016",
+		UZ_METADATA_BUILD : 						"2311.10162016",
 
 		ERR_MISSING_ATTRIBUTE : 					function(id, attr){return "The update zone '" + id + "' is missing the required attribute: " + attr;},
 		setLogLevel : 								function(lvl){uzlogger.currentLogLevel = lvl;},
@@ -101,6 +101,24 @@ loadJquery("https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js", f
 				uzlogger.log("log", "The attribute '" + attr + "' was not found for the update zone '" + this.getUzCtrlId(ele) + "'.");
 			}
 			return null;
+		},
+
+		/**
+		* Obtain JSON string from uz-data attribute of an update zone.
+		* @param id 	The update zone to obtain the json string from.
+		*/
+		getUzElementData : function(id){
+			var ele = this.getCtrlFromId(id);
+			var jsonString = this.getUzAttrValue(ele, this.UZ_ATTRIBUTE_DATA);
+
+			var jsonObj = null;
+			try{
+				jsonObj = JSON.parse(jsonString);
+			}
+			catch(err){
+				uzlogger.log("error", err);
+			}
+			return jsonObj;
 		},
 
 		/**
@@ -233,11 +251,11 @@ loadJquery("https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js", f
 			
 			// data can come from uz-data, or uz-param
 			if(this.uzCtrlHasAttribute(id, this.UZ_ATTRIBUTE_DATA)){
-				var dataJson = {}
-				console.log("TODO extract data json");
+				var dataJson = this.getUzElementData(id);
 				data = dataJson;
 			}
-			if(this.uzCtrlHasAttribute(id, this.UZ_ATTRIBUTE_PARAM)){
+			// as of now, i think i'm not going to allow both uz-data and uz-param
+			else if(this.uzCtrlHasAttribute(id, this.UZ_ATTRIBUTE_PARAM)){
 				var params = this.getUzElementParams(id);
 				for(var i = 0; i < params.length; i++){
 					data[params[i].key] = params[i].value;
